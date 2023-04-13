@@ -2,7 +2,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
 from .models import User
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from .serializers import UserSerializer
 from .permissions import IsOwner
 from rest_framework import generics
@@ -26,7 +26,7 @@ class UserDetailSet(generics.RetrieveUpdateDestroyAPIView):
 
 
 class UserChangeSet(generics.RetrieveUpdateAPIView):
-    permission_classes = (IsAuthenticated & IsOwner,)
+    permission_classes = (IsOwner,)
     serializer_class = UserSerializer
 
     def get_queryset(self):
