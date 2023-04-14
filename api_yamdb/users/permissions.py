@@ -18,6 +18,13 @@ class IsModerator(BasePermission):
         return bool(request.user and request.user.is_moderator)
 
 
+# class IsAdmin(BasePermission):
+#     """Разрешения для admin"""
+#
+#     def has_permission(self, request, view):
+#         return bool(request.user and request.user.is_staff)
+
+
 class IsSuperUser(BasePermission):
     """Разрешения для superuser"""
 
