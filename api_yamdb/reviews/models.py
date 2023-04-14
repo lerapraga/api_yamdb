@@ -14,7 +14,22 @@ class User(AbstractUser):
 
 class Category(models.Model):
     """Класс категорий"""
-    pass
+    name = models.CharField(
+        'имя категории',
+        max_length=200
+    )
+    slug = models.SlugField(
+        'слаг категории',
+        unique=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return f'{self.name} {self.name}'
 
 
 class Genre(models.Model):
