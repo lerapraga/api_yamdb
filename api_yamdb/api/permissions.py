@@ -15,3 +15,15 @@ class AdminAuthorModeratorOrReadOnly(permissions.BasePermission):
             or request.user.is_moderator
             or request.user.is_admin
         )
+
+
+class AdminOnly(permissions.BasePermission):
+    pass
+
+
+class IsAdminUserOrReadOnly(permissions.BasePermission):
+    pass
+
+
+class AdminModeratorAuthorPermission(permissions.BasePermission):
+    pass
