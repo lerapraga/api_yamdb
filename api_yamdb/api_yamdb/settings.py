@@ -1,4 +1,4 @@
-import os
+# import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -165,7 +165,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
