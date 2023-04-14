@@ -1,17 +1,19 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from rest_framework.filters import SearchFilter
-from rest_framework.generics import CreateAPIView
-from rest_framework.pagination import PageNumberPagination
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAdminUser, AllowAny
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from .serializers import UserSerializer, UserCreateCodeSerializer, UserLoginCodeSerializer, UserAuthSerializer
-from .permissions import IsOwner, IsModerator, IsSuperUser
-from rest_framework import generics, status
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status
 from rest_framework.decorators import api_view
+from rest_framework.filters import SearchFilter
+# from rest_framework.generics import CreateAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .permissions import IsOwner
+from .serializers import (UserAuthSerializer, UserCreateCodeSerializer,
+                          UserLoginCodeSerializer, UserSerializer)
 
 User = get_user_model()
 

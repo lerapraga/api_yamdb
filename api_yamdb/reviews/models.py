@@ -1,7 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from users.models import User
 from django.contrib.auth.models import AbstractUser
 # from django.contrib.auth.tokens import default_token_generator
 from django.db import models
@@ -9,6 +8,8 @@ from django.db import models
 # from django.dispatch import receiver
 
 from .validators import validate_year
+from users.models import User
+from api.views import Title
 
 
 class Review(models.Model):
@@ -71,7 +72,22 @@ class Category(models.Model):
 
 class Genre(models.Model):
     """Класс жанры"""
-    pass
+    name = models.CharField(
+        'имя жанра',
+        max_length=200
+    )
+    slug = models.SlugField(
+        'cлаг жанра',
+        unique=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
+    def __str__(self):
+        return f'{self.name} {self.name}'
 
 
 class Title(models.Model):
