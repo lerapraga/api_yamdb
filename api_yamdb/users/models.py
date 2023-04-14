@@ -23,8 +23,6 @@ class User(AbstractUser):
         default='user'
     )
     confirmation_code = models.CharField(max_length=100, blank=True)
-    is_moderator = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
     def __str__(self):
