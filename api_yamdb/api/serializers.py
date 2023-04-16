@@ -1,14 +1,13 @@
-from reviews.models import Review, Title, Category, Genre
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-# from django.core.exceptions import ValidationError
-# from django.shortcuts import get_object_or_404
+from reviews.models import Category, Genre, Review, Title
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True
-    )    
+    )
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
