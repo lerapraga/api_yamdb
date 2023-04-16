@@ -6,13 +6,6 @@ from users.models import User
 
 from .validators import validate_year
 
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-
-
-# class User(AbstractUser):
-#     pass
-
 
 class Category(models.Model):
     """Класс категорий"""
