@@ -1,4 +1,4 @@
-# from django.core.mail import EmailMessage
+
 from api.filters import TitleFilter
 from api.permissions import AdminAuthorModeratorOrReadOnly
 from api.serializers import ReviewsSerializer
@@ -6,20 +6,16 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
-# from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Review, Title
 
 from .mixins import ModelMixinSet
-from .permissions import IsAdminUserOrReadOnly
-from .serializers import (CategorySerializer, GenreSerializer,
-                          TitleReadSerializer, TitleWriteSerializer)
-
-# from rest_framework_simplejwt.tokens import RefreshToken
+from .permissions import AdminModeratorAuthorPermission, IsAdminUserOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, TitleReadSerializer,
+                          TitleWriteSerializer)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -30,7 +26,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
-        return title.reviews.all()
+        return title.reviews.all()  # type: ignore
 
     def perform_create(self, serializer):
         title = get_object_or_404(
@@ -69,7 +65,20 @@ class APISignup(APIView):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    pass
+    serializer_class = CommentSerializer
+    permission_classes = (AdminModeratorAuthorPermission,)
+
+    def get_queryset(self):
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'))
+        return review.comments.all()  # type: ignore
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
 
 class CategoryViewSet(ModelMixinSet):
