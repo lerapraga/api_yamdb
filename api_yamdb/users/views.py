@@ -10,7 +10,8 @@ from rest_framework.filters import SearchFilter
 # from rest_framework.generics import CreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
+from .permissions import IsSuperUser, IsOwner
+from .serializers import UserSerializer
 
 User = get_user_model()
 
