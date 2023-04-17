@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.conf import settings
 
 User = get_user_model()
 
@@ -12,6 +13,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        lookup_field = 'username'
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Такой email уже зарегистрирован у другого пользователя')
+        return value
 
 
 class UserCreateCodeSerializer(serializers.ModelSerializer):
