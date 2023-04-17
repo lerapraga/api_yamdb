@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
@@ -9,46 +11,40 @@ from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken
-
-from .permissions import IsOwner
-from .serializers import (UserAuthSerializer, UserCreateCodeSerializer,
-                          UserSerializer)
-
-# from django.core.mail import EmailMessage
-# from rest_framework.decorators import action
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.response import Response
-# from rest_framework_simplejwt.tokens import RefreshToken
-
 
 User = get_user_model()
 
 
 class UserViewSet(generics.ListCreateAPIView):
     queryset = User.objects.all()
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAdminUser | IsSuperUser,)
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
-    lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
 
 
 class UserDetailSet(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.all()
+    permission_classes = (IsAdminUser | IsSuperUser,)
     serializer_class = UserSerializer
-
-    def get_queryset(self):
-        return get_object_or_404(User, username=self.kwargs.get('username'))
+    lookup_field = 'username'
+    http_method_names = ['patch', 'get', 'delete']
 
 
 class UserChangeSet(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
     permission_classes = (IsOwner,)
     serializer_class = UserSerializer
 
-    def get_queryset(self):
-        return get_object_or_404(User, username=self.kwargs.get('username'))
+    def get_object(self):
+        return get_object_or_404(User, username=self.request.user.username)
+
+    def perform_update(self, serializer):
+        user = get_object_or_404(User, username=self.request.user.username)
+        if serializer.validated_data.get('role') and serializer.validated_data.get('role') != user.role:
+            raise PermissionDenied('вы не можете изменять роль своего аккаунта')
+        super(UserChangeSet, self).perform_update(serializer)
 
 
 @api_view(['POST'])

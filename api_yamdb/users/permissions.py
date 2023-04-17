@@ -15,14 +15,14 @@ class IsModerator(BasePermission):
     """Разрешения для user-moderator"""
 
     def has_permission(self, request, view):
-        return request.user.role == 'moderator'
+        return request.user.is_authenticated and request.user.role == 'moderator'
 
 
 class IsAdminUser(BasePermission):
     """Разрешения для admin"""
 
     def has_permission(self, request, view):
-        return request.user.role == 'admin'
+        return request.user.is_authenticated and request.user.role == 'admin'
 
 
 class IsSuperUser(BasePermission):
