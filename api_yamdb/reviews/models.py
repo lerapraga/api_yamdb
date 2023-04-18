@@ -110,7 +110,7 @@ class Review(models.Model):
         auto_now_add=True,
         verbose_name='Дата публикации',
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1), MaxValueValidator(10)),
         verbose_name='Оценка',
     )
@@ -134,8 +134,8 @@ class Comment(models.Model):
         verbose_name='отзыв'
     )
     text = models.CharField(
-        'текст комментария',
-        max_length=200
+        max_length=200,
+        verbose_name='текст комментария'
     )
     author = models.ForeignKey(
         User,
@@ -144,9 +144,9 @@ class Comment(models.Model):
         verbose_name='автор'
     )
     pub_date = models.DateTimeField(
-        'дата публикации',
         auto_now_add=True,
-        db_index=True
+        db_index=True,
+        verbose_name='дата публикации'
     )
 
     class Meta:

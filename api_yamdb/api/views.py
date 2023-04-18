@@ -1,7 +1,5 @@
 
 from api.filters import TitleFilter
-from api.permissions import AdminAuthorModeratorOrReadOnly
-from api.serializers import ReviewsSerializer
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,10 +10,10 @@ from rest_framework.viewsets import ModelViewSet
 from reviews.models import Category, Genre, Review, Title
 
 from .mixins import ModelMixinSet
-from .permissions import AdminModeratorAuthorPermission, IsAdminUserOrReadOnly
+from .permissions import AdminAuthorModeratorOrReadOnly, IsAdminUserOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, TitleReadSerializer,
-                          TitleWriteSerializer)
+                          GenreSerializer, ReviewsSerializer,
+                          TitleReadSerializer, TitleWriteSerializer)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -26,7 +24,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
-        return title.reviews.all()  # type: ignore
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
@@ -66,13 +64,13 @@ class APISignup(APIView):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (AdminModeratorAuthorPermission,)
+    permission_classes = (AdminAuthorModeratorOrReadOnly,)
 
     def get_queryset(self):
         review = get_object_or_404(
             Review,
             id=self.kwargs.get('review_id'))
-        return review.comments.all()  # type: ignore
+        return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(
