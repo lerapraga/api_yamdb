@@ -1,16 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter
-# from rest_framework.generics import CreateAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import AccessToken
+
+from users.permissions import IsAdminUser, IsOwner, IsSuperUser
+from users.serializers import (UserAuthSerializer, UserCreateCodeSerializer,
+                               UserSerializer)
 
 User = get_user_model()
 
@@ -42,8 +44,10 @@ class UserChangeSet(generics.RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         user = get_object_or_404(User, username=self.request.user.username)
-        if serializer.validated_data.get('role') and serializer.validated_data.get('role') != user.role:
-            raise PermissionDenied('вы не можете изменять роль своего аккаунта')
+        if (serializer.validated_data.get('role')
+                and serializer.validated_data.get('role') != user.role):
+            raise PermissionDenied(
+                'вы не можете изменять роль своего аккаунта')
         super(UserChangeSet, self).perform_update(serializer)
 
 
@@ -61,7 +65,8 @@ def get_user_code(request):
                 email=serializer.validated_data.get('email')
             )
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     user.confirmation_code = default_token_generator.make_token(user)
     send_mail(
         'Код подтверждения.',
@@ -80,7 +85,13 @@ def auth_user_with_code(request):
         user = get_object_or_404(User, username=request.user.username)
         confirmation_code = request.query_params.get('confirmation_code')
         if not default_token_generator.check_token(user, confirmation_code):
-            return Response('Неправильный код подтверждения', status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Неправильный код подтверждения',
+                status=status.HTTP_400_BAD_REQUEST
+            )
         token = AccessToken.for_user(user)
-        return Response({'token': str(token.access_token)}, status=status.HTTP_200_OK)
+        return Response(
+            {'token': str(token.access_token)},
+            status=status.HTTP_200_OK
+        )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
