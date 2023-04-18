@@ -1,13 +1,12 @@
-
-from api.filters import TitleFilter
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from reviews.models import Category, Genre, Review, Title
+
+from api.filters import TitleFilter
 
 from .mixins import ModelMixinSet
 from .permissions import AdminAuthorModeratorOrReadOnly, IsAdminUserOrReadOnly
@@ -31,35 +30,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
             Title,
             id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
-
-
-class UsersViewSet(viewsets.ModelViewSet):
-    pass
-
-
-class APIGetToken(APIView):
-    """
-    Получение JWT-токена в обмен на username и confirmation code.
-    Права доступа: Доступно без токена. Пример тела запроса:
-    {
-        "username": "string",
-        "confirmation_code": "string"
-    }
-    """
-    pass
-
-
-class APISignup(APIView):
-    """
-    Получить код подтверждения на переданный email. Права доступа: Доступно без
-    токена. Использовать имя 'me' в качестве username запрещено. Поля email и
-    username должны быть уникальными. Пример тела запроса:
-    {
-        "email": "string",
-        "username": "string"
-    }
-    """
-    pass
 
 
 class CommentViewSet(viewsets.ModelViewSet):
