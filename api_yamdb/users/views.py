@@ -1,10 +1,11 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -31,7 +32,20 @@ class UserDetailSet(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAdminUser | IsSuperUser,)
     serializer_class = UserSerializer
     lookup_field = 'username'
-    http_method_names = ['patch', 'get', 'delete']
+
+    def update(self, request, *args, **kwargs):
+        if request.method == 'PUT':
+            raise MethodNotAllowed(method=request.method)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=partial
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 class UserChangeSet(generics.RetrieveUpdateAPIView):
@@ -59,7 +73,7 @@ def get_user_code(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
         serializer = UserCreateCodeSerializer(data=request.data)
-        if serializer.is_valid() and request.data.get('username') != 'me':
+        if serializer.is_valid():
             user = User.objects.create_user(
                 username=serializer.validated_data.get('username'),
                 email=serializer.validated_data.get('email')
@@ -71,7 +85,7 @@ def get_user_code(request):
     send_mail(
         'Код подтверждения.',
         f'Ваш код для регистрации на сайте {user.confirmation_code}.',
-        'from@example.com',
+        settings.EMAIL_HOST_USER,
         [user.email],
         fail_silently=False,
     )

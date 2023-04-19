@@ -1,7 +1,10 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
+from users.validators import not_me_username
 
 User = get_user_model()
 
@@ -29,20 +32,24 @@ class UserCreateCodeSerializer(serializers.ModelSerializer):
     """
 
     username = serializers.CharField(
-        validators=[
+        validators=(
             UniqueValidator(User.objects.all()),
-            RegexValidator(r'^[\w.@+-]+$'),
-        ],
+            RegexValidator(settings.ALLOWED_SYMBOLS),
+        ),
         max_length=150
     )
     email = serializers.EmailField(
-        validators=[UniqueValidator(User.objects.all())],
+        validators=(UniqueValidator(User.objects.all()),),
         max_length=254
     )
 
     class Meta:
         model = User
         fields = ('username', 'email')
+
+    def validate_username(self, value):
+        not_me_username(value)
+        return value
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
