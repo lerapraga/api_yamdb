@@ -55,6 +55,7 @@ class GenreTitle(models.Model):
 
 class Title(models.Model):
     """Класс произведения"""
+    id = models.BigAutoField(primary_key=True)
     name = models.CharField(
         'название',
         max_length=200,
@@ -74,9 +75,7 @@ class Title(models.Model):
     )
     description = models.TextField(
         'описание',
-        max_length=255,
-        null=True,
-        blank=True
+        max_length=255
     )
     genre = models.ManyToManyField(
         Genre,
