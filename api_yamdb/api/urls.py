@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
+
 from users.views import auth_user_with_code, get_user_code
 
 from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,

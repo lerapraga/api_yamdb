@@ -9,12 +9,12 @@ class User(AbstractUser):
 
     username = models.CharField(
         max_length=150,
-        validators=[RegexValidator(r'^[\w.@+-]+$')],
+        validators=(RegexValidator(settings.ALLOWED_SYMBOLS),),
         unique=True
     )
     email = models.EmailField(
         max_length=254,
-        validators=[validate_email],
+        validators=(validate_email,)
     )
     bio = models.TextField(blank=True)
     role = models.CharField(
@@ -25,8 +25,8 @@ class User(AbstractUser):
     confirmation_code = models.CharField(max_length=100, blank=True)
     is_superuser = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ('-id',)
+
     def __str__(self):
         return self.username
-
-    class Meta:
-        ordering = ['-id']
